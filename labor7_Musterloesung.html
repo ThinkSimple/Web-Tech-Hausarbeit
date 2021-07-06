@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="de">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <style>
+
+            #output
+            {
+                height: 500px;
+                width: 500px;
+
+                /* Zeilenumbruch und Scrollbalken für den Message-Bereich */
+                overflow-y: scroll;
+                line-break: normal;
+                word-break: break-all;
+            }
+
+            /* Hidden-Klasse, um Elemente ein und auszublenden */
+            .hidden
+            {
+                visibility: hidden;
+            }
+        </style>
+    </head>
+    
+    <body>
+
+        <div id="userlogin_container">
+            <input id="text_uname" type="text">
+            <input id="button_uname" type="button" value="User*inname festlegen">
+        </div>
+
+        <div id="chat_container">
+            <div id="output"></div>
+            <input id="text" type="text">
+            <input id="button_chat" type="button" value="abschicken">
+            <input id="button_geo" type="button" value="geolocation teilen">
+        </div>
+
+        <script>
+
+// Erstmal alle Elemente holen....
+var userlogin_container = document.getElementById("userlogin_container")
+var chat_container = document.getElementById("chat_container")
+var out = document.getElementById("output")
+var button = document.getElementById("button")
+var button_uname = document.getElementById("button_uname")
+var button_chat = document.getElementById("button_chat")
+var button_geo = document.getElementById("button_geo")
+var text = document.getElementById("text")
+var uuid = ""
+var username = ""
+
+// ... dann Websocket erzeugen...
+let socket = new WebSocket("ws://tommydittloff.de:3333")
+
+// ... und EventListener definieren
+button_chat.addEventListener("click", () => chat() )
+button_uname.addEventListener("click", () => connect() )
+button_geo.addEventListener("click", () => geo() )
+
+// Das Chatfenster zu beginn per CSS ausblenden.
+// (siehe hidden-class im Style-Bereich)
+chat_container.classList.add("hidden")
+            
+
+// wird ausgeloest, wenn der "User*inname festlegen"-Button geklickt wird
+function connect()
+{
+    username = text_uname.value
+    let obj={type:"connect", username: username}
+    socket.send(JSON.stringify(obj));
+
+    // Nach dem Festlegen des user*innames, wird das Eingabefeld mit CSS
+    // auf hidden gesetzt und das Chatfenster wird angezeigt durch
+    // Entfernen der "hidden" Klasse
+    userlogin_container.classList.add("hidden")
+    chat_container.classList.remove("hidden")
+}
+
+// wird ausgeloest, wenn auf "abschicken" geklickt wird
+function chat()
+{
+    let obj = {type:"chat", username: username, message: text.value }
+    socket.send(JSON.stringify(obj));
+    // Eigene Message an den Chat anfügen
+    out.innerText += username + ": " + text.value + "\r\n"
+    // nach unten scrollen, wenn eine neue message kommt
+    scrollDown()
+}
+
+function scrollDown()
+{
+    // https://stackoverflow.com/questions/25505778/automatically-scroll-down-chat-div
+    out.scrollTop = out.scrollHeight;
+}
+
+// wird ausgeloest, wenn auf "geolocation teilen" geklickt wird
+function geo()
+{
+    var lat = 10;
+    var long = 20;
+    let obj = {type:"geolocation", username: username, latitude: lat, longitude: long}
+    socket.send(JSON.stringify(obj));
+
+    // Eigene Geolocation an den Chat anfügen
+    let url = "http://www.openstreetmaps.org/?lat="+lat+"&lon="+long+"&zoom=1"
+    out.innerHTML += username +" hat die Koordinaten geteilt: <a href='"+url+"'>LINK</a><br>"
+
+    scrollDown()
+}
+
+// wird ausgeloest, wenn ein erfolgreicher Verbindungsaufbau stattgefunden hat.
+socket.onopen = function(event)
+{
+    out.innerText += "[open] Connection established\r\n"
+};
+
+// wird ausgeloest, wenn der Websocket eine Nachricht vom Server empfängt.
+// Hier findet die Fallentscheidung statt, um welchen Nachrichtentyp es sich handelt
+// und die empfangenen Nachrichten werden entsprechend an den Chat-Output angefügt
+socket.onmessage = function(event)
+{
+    let data = JSON.parse(event.data)
+    
+    if(data.type == "uuid")
+    {
+        uuid = data.data
+        out.innerText += "uuid erfolgreich zugewiesen: " + uuid + "\r\n"
+    }
+    else if (data.type == "connect")
+    {
+        out.innerText += data.username +" betritt den Raum\r\n"
+    }
+    else if (data.type == "chat")
+    {
+        out.innerText += data.username +": "+data.message+"\r\n"
+    }
+    else if (data.type == "geolocation")
+    {
+        // Achtung: das <a>-Element verschwindet, sobald eine neue Message gepostet wird.
+        // Die anderen Messages werden über "innerText" angefügt, wodurch nicht mehr komplette html-Elemente,
+        // sondern nurnoch deren Textinhalt geparsed werden.
+        let url = "http://www.openstreetmaps.org/?lat="+data.latitude+"&lon="+data.longitude+"&zoom=1"
+        out.innerHTML += data.username +" hat die Koordinaten geteilt: <a href='"+url+"'>LINK</a><br>"
+    }
+    else
+    {
+        out.innerText += "[message] nicht zuordenbar" + data + "\r\n"
+    }
+
+    scrollDown()
+};
+
+socket.onclose = function(event)
+{
+  if (event.wasClean)
+  {
+    alert(`[close] Connection closed cleanly, code=${event.code} reason=${event.reason}`)
+  }
+  else
+  {
+    // e.g. server process killed or network down
+    // event.code is usually 1006 in this case
+    alert('[close] Connection died')
+  }
+};
+
+socket.onerror = function(error)
+{
+  alert(`[error] ${error.message}`)
+};
+
+        </script>
+    </body>
+</html>

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      href="https://unpkg.com/tailwindcss@^1.0/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+    <script defer src="index.js"></script>
+    <title>Hausarbeit</title>
+  </head>
+  <body class="bg-gray-700">
+    <div id="form" class="p-6 w-full h-screen grid grid-cols-1 auto-rows-min place-items-center text-white">
+      Anmelden
+      <input class="shadow appearance-none rounded mb-2 mt-2 py-2 px-3 border-white bg-gray-600 placeholder-gray-200" type="text" id="username" name="username" placeholder="Username"/>
+      <input class="shadow appearance-none rounded mb-2 py-2 px-3 border-white bg-gray-600 placeholder-gray-200" type="text" id="image-path" name="image-path" placeholder="Bilderpath"/>
+      <input class="shadow appearance-none rounded mb-2 py-2 px-3 border-white bg-gray-600 placeholder-gray-200" type="text" id="listens-to" name="listens-to" placeholder="Musik"/>
+      <input class="shadow appearance-none rounded mb-2 py-2 px-3 border-white bg-gray-600 placeholder-gray-200" type="text" id="in-game" name="in-game" placeholder="Spiel"/>
+      <input class="shadow appearance-none rounded mb-2 py-2 px-3 border-white bg-gray-600 placeholder-gray-200" type="text" id="info" name="info" placeholder="Info"/>
+      <button class="p-1 px-2 rounded bg-indigo-600 hover:bg-indigo-500" onclick="fetchData()">Connect</button>
+    </div>
+    <div id="loading-div" style="visibility: hidden">loading...</div>
+    <div class="h-full w-full flex flex-row">
+      <div id="sidebar"></div>
+      <div id="content"></div>
+      <div id="friends-sidebar" style="width: 20%; display: inline-block"></div>
+    </div>
+  </body>
+</html>
+<!-- 
+  Ganz oben im body:
+  <div id="form">
+      blabla m
+      <button onclick="fetchData()">Fetch</button>
+    </div>
+    <div id="loading-div" style="visibility: hidden">loading...</div>
+-->

@@ -1,0 +1,22 @@
+{
+  "serverlist": [
+    {
+      "name": "Studium",
+      "url": "ws://tommydittloff.de:3334",
+      "icon": "http://tommydittloff.de/wt/studium.png",
+      "channels": ["Vorlesungen", "Labore", "Mensa", "H-Gebäude-Party"]
+    },
+    {
+      "name": "Games",
+      "url": "ws://tommydittloff.de:3335",
+      "icon": "http://tommydittloff.de/wt/games.png",
+      "channels": ["rpg", "fps", "mmo", "tbs", "rts", "wtf"]
+    },
+    {
+      "name": "EM 2020",
+      "url": "ws://tommydittloff.de:3336",
+      "icon": "http://tommydittloff.de/wt/em2020.png",
+      "channels": ["Spiele", "Biere"]
+    }
+  ]
+}
